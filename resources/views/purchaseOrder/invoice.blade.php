@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Supply Order - ADCC</title>
+<style>
+  body {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 14px;
+    color: #111;
+    margin: 0;
+    padding: 28px 36px;
+    background: #fff;
+  }
+
+  .company-title {
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .company-sub {
+    margin-top: 2px;
+    font-size: 13px;
+  }
+
+  .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  width: 100%;
+}
+
+.hdr-left {
+  text-align: center;
+}
+
+.hdr-right {
+  text-align: right;
+margin-top: -120px;
+}
+
+.logo {
+  width: 60px;                 /* thoda bada */
+  height: 60px;                /* ratio maintain */
+  object-fit: contain;
+  display: inline-block;
+}
+
+
+  .meta {
+    margin-top: 6px;
+    display:flex;
+    gap:18px;
+    align-items:center;
+  }
+  .meta .left { flex:1; }
+  .meta .right {
+    text-align:left;
+    min-width:220px;
+    font-weight:600;
+  }
+
+  .doc-title {
+    margin-top: 12px;
+    font-weight:700;
+    font-size:15px;
+    text-decoration: underline;
+  }
+
+  .refs { margin-top: 10px; }
+  .refs p, .content p { margin:6px 0; line-height:1.45; text-align:justify; }
+  .refs .ref-list { margin-left: 18px; }
+
+  .items {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px 0;
+  }
+  .items th, .items td {
+    border: 1px solid #333;
+    padding: 8px 10px;
+    vertical-align: top;
+  }
+  .items th {
+    background:#f7f7f7;
+    font-weight:700;
+    text-align:left;
+  }
+  .items .center { text-align:center; }
+  .items .right { text-align:right; }
+
+  .signature {
+    margin-top: 22px;
+    display:flex;
+    justify-content:end;
+    align-items:center;
+    gap:18px;
+  }
+  .sign-line {
+    text-align:right;
+    min-width:260px;
+  }
+  .sign-line .name { font-weight:700; letter-spacing:0.4px; }
+  .sign-line .title { font-size:13px; margin-top:2px;margin-right: 57px; }
+
+  .info { margin-top: 18px; font-size:13px; }
+
+  .page-footer {
+    margin-top: 30px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 8px;
+    font-size:13px;
+    text-align:center;
+    color:#222;
+  }
+
+  .small { font-size:13px; }
+  .underline { text-decoration: underline; }
+
+  /* PRINT STYLING */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  @media print {
+    body {
+      width: 210mm;
+      height: 297mm;
+      margin: 0 auto;
+      padding: 20mm;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    .header, .meta, .doc-title, .refs, .content, .signature, .info, .page-footer {
+      page-break-inside: avoid;
+    }
+
+    .items {
+      page-break-inside: avoid;
+    }
+    thead {
+      display: table-header-group; /* repeat headers on new page */
+    }
+
+    .page-footer {
+      position: fixed;
+      bottom: 10mm;
+      left: 0;
+      right: 0;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 6px;
+      font-size: 12px;
+      background: #fff;
+    }
+
+    .company-title,
+    .company-sub,
+    .doc-title,
+    .page-footer {
+      white-space: nowrap;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="hdr-left">
+    <div class="company-title">Anchor Development &amp; Construction Company</div>
+    <div class="company-sub">ADCC (South), Karachi Ph # 021-34684792</div>
+  </div>
+  <div class="hdr-right">
+    <img src="{{ public_path('assets/img/logo/adcc.png') }}" class="logo">
+  </div>
+</div>
+
+
+
+<div class="meta">
+  <div class="left small">
+    <strong>ADCC (South)/25/ {{ $purchaseOrder->po_number }}</strong>
+    <div style="margin-top:6px;">
+      <strong>{{ $purchaseOrder->supplier->name ?? '-' }}</strong><br />
+      Karachi
+    </div>
+  </div>
+  <div class="right small" >
+    <div style="text-align:right;margin-top:-30px !important;" >
+      {{ $purchaseOrder->po_date ? \Carbon\Carbon::parse($purchaseOrder->po_date)->format('d F Y') : '-' }}
+    </div>
+  </div>
+</div>
+
+<div class="doc-title">
+  SUPPLY ORDER FOR PROVISION OF {{ $purchaseOrder->items->first()->item->item ?? '-' }} - CONSTRUCTION OF 70 X HOUSES PROJECT AT NHS MAURIPUR KARACHI
+</div>
+
+<div class="refs">
+  <p><strong>References</strong></p>
+  <div class="ref-list">
+    <p>A. MOU No. {{ $purchaseOrder->supplier->mou_no ?? '-' }} {{$purchaseOrder->supplier->mou_date ? \Carbon\Carbon::parse($purchaseOrder->supplier->mou_date)->format('d F Y') : '-'}}</p>
+    {{-- <p> {{ $purchaseOrder->supplier->addendum_no ? '(Addendum No: ' . $purchaseOrder->supplier->addendum_no . ')' : '' }}</p>  --}}
+  
+   @if(optional($poItem->supplier)->addendum_no || optional($poItem->supplier)->addendum_date)
+    <p>
+        B. MOU No. {{ optional($purchaseOrder->supplier)->mou_no ?? '-' }}
+        {{ optional($poItem->supplier)->addendum_no ? '(Addendum No: ' . optional($poItem->supplier)->addendum_no . ')' : '' }}
+        {{ optional($poItem->supplier)->addendum_date
+            ? \Carbon\Carbon::parse(optional($poItem->supplier)->addendum_date)->format('d F Y')
+            : '' }}
+    </p>
+@endif
+
+
+    {{-- <p>(Addendum No: {{ optional($purchaseOrder->supplier)->addendum_no ?? 'N/A' }})</p> --}}
+
+    {{-- <p>B. Addendum A to MOU No. {{ $purchaseOrder->mou_no }} / {{ $purchaseOrder->po_number }} {{ $purchaseOrder->po_date ? \Carbon\Carbon::parse($purchaseOrder->po_date)->format('d F Y') : '-' }}.</p> --}}
+  </div>
+</div>
+
+<div class="content">
+  <!-- <p>1. Kindly supply following quantities of OP {{ $purchaseOrder->items->first()->item->item ?? '-' }} ({{ $purchaseOrder->items->first()->item->deno ?? '-' }}) conforming to BSS-12 standards respectively. (OPC in 03 x Ply Paper Bag / PP Bag of weight 50 Kg each) inclusive all applicable taxes, loading / unloading, delivery at site in all respect for Construction of 70 Houses Project at NHS Mauripur Site.</p> -->
+  <p>1. Kindly supply the following quantities of {{ $purchaseOrder->items->first()->item->item ?? '-' }} ({{ $purchaseOrder->items->first()->item->deno ?? '-' }}) as per the agreed standards, @RS {{ $purchaseOrder->items->sum('rate') }} per {{ $purchaseOrder->items->first()->item->deno ?? '-' }} and terms and conditions, including all applicable taxes, loading/unloading, and delivery at site in all respects for Construction of 70 Houses Project at NHS Mauripur Site.</p>
+
+  <table class="items" aria-label="items table">
+    <thead>
+      <tr style="text-align: center;">
+        <th style="width:6%; text-align: center;">S#</th>
+        <th style="width:28%; text-align: center;">Description</th>
+        <th style="width:9%; text-align: center;">Deno</th>
+        <th style="width:32%; text-align: center;">Contractor's Site</th>
+        <th style="width:8%; text-align: center;">Qty Required</th>
+        <th style="width:22%; text-align: center;">Delivery Schedule</th>
+      </tr>
+    </thead>
+    <tbody>
+         @php $grandTotal = 0; @endphp
+        @foreach($contractorItems as $index => $data)
+        <tr>
+            <td class="center">{{ $index == 0 ? 'a.' : $index + 1 }}</td>
+            <td>{{ $data['item'] ?? '-' }}</td>
+            <td class="center">{{ $data['deno'] ?? '-' }}</td>
+            <td>{{ $data['contractor'] ?? '-' }}</td>
+            <td class="center">
+                {{ $data['qty'] ?? '-' }}
+                @php $grandTotal += $data['qty'] ?? 0; @endphp
+            </td>
+            <td class="center">{{ $data['delivery'] ?? '-' }}</td>
+        </tr>
+    @endforeach
+      <tr>
+        <td colspan="4" class="right"><strong>Total</strong></td>
+        <td class="center"><strong>{{ number_format($grandTotal, 2) }}</strong></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>2. Date and time of delivery of material if any may be coordinated with the ADCC (Site Store Manager) Mr. Osama Yousuf (Contact Number 0314-6625167). You are requested to inform this office about the delivery timings to enable the nominated rep to check the delivery on arrival at site.</p>
+
+  <p>3. It is further requested that delivery challan along with invoice against the supply duly signed by the rep of ADCC / contractor as recipient may please be provided to this office for payment.</p>
+</div>
+
+<div class="signature">
+  <div class="sign-line">
+    <div style="height:68px; display:flex; align-items:flex-end; justify-content:center;">
+      <svg width="220" height="60" xmlns="http://www.w3.org/2000/svg">
+        <line x1="0" y1="50" x2="220" y2="50" stroke="#000" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="name">ABDUL WAHEED SOHAIL</div>
+    <div class="title">Chief Executive Officer</div>
+  </div>
+</div>
+
+<div class="info">
+  <p><strong>Information:</strong></p>
+  <p>Snr Project Manager (NHS Mauripur), ADCC</p>
+  <p>Store Office (NHS Mauripur), ADCC</p>
+</div>
+
+<div class="page-footer">
+  Street No. 8 Near Al Rehman Masjid Naval Housing Scheme, Phase - I, Karsaz, Karachi. &nbsp;&nbsp;
+  Email: <span class="underline">adcc.south@gmail.com</span>
+</div>
+
+</body>
+</html>
